@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Заказ #{{ order.id }} - Книжный Магазин{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📦 Заказ #{{ order.id }}</h1>
+        <span class="badge bg-{{ order.get_status_display_class }} fs-6">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+    
+    <div class="row">
+        <!-- Информация о заказе -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">📚 Состав заказа</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in order_items %}
+                    <div class="row align-items-center mb-3 pb-3 border-bottom">
+                        <div class="col-md-2">
+                            {% if item.book.cover_image %}
+                                <img src="{{ item.book.cover_image }}" class="img-fluid rounded" 
+                                     alt="{{ item.book.title }}" style="max-height: 80px; object-fit: contain;">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="width: 80px; height: 80px;">
+                                    <small class="text-muted">Нет фото</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="mb-1">{{ item.book.title }}</h6>
+                            <small class="text-muted">Автор: {{ item.book.author }}</small>
+                        </div>
+                        
+                        <div class="col-md-2 text-center">
+                            <small>{{ item.quantity }} шт.</small>
+                        </div>
+                        
+                        <div class="col-md-2 text-end">
+                            <strong>{{ item.total_price }} руб.</strong>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-8">
+                            <strong>Общая сумма:</strong>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <h5 class="text-primary">{{ order.total_price }} руб.</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Информация о доставке -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📋 Данные получателя</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>ФИО:</strong><br>{{ order.customer_name }}</p>
+                            <p><strong>Email:</strong><br>{{ order.customer_email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Телефон:</strong><br>{{ order.customer_phone }}</p>
+                            <p><strong>Адрес доставки:</strong><br>{{ order.shipping_address|linebreaks }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if order.notes %}
+                    <div class="mt-3">
+                        <strong>Комментарий к заказу:</strong>
+                        <p class="mb-0">{{ order.notes|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Действия с заказом -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header">
+                    <h5 class="mb-0">⚡ Действия</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Дата заказа:</strong><br>
+                        {{ order.created_at|date:"d.m.Y H:i" }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Статус:</strong><br>
+                        <span class="badge bg-{{ order.get_status_display_class }}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if order.status == 'pending' %}
+                        <form method="post" action="{% url 'cancel_order' order.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger w-100" 
+                                    onclick="return confirm('Вы уверены, что хотите отменить заказ?')">
+                                ❌ Отменить заказ
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">
+                            ← Мои заказы
+                        </a>
+                        <a href="{% url 'book_list' %}" class="btn btn-outline-primary">
+                            📚 Продолжить покупки
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

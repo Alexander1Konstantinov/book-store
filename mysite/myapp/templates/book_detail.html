@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image }}" class="img-fluid rounded" 
+                     alt="{{ book.title }}" style="max-height: 500px; object-fit: contain;">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center rounded" 
+                     style="height: 500px;">
+                    <span class="text-muted">Нет обложки</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-8">
+            <h1 class="mb-3">{{ book.title }}</h1>
+            <p class="lead"><strong>Автор:</strong> {{ book.author }}</p>
+            
+            {% if book.description %}
+            <div class="mb-4">
+                <h5>Описание</h5>
+                <p class="text-justify">{{ book.description }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <!-- Динамическая цена -->
+                    <h4 class="card-title text-success mb-3">
+                        <span id="book-price">{{ book.price }}</span> руб.
+                        <small class="text-muted" id="total-price-text"></small>
+                    </h4>
+                    
+                    <form method="post" action="{% url 'add_to_cart' book.id %}">
+                        {% csrf_token %}
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <label for="quantity" class="form-label">Количество:</label>
+                            </div>
+                            <div class="col-auto">
+                                <input type="number" id="quantity" name="quantity" 
+                                       value="1" min="1" max="10" class="form-control" 
+                                       style="width: 80px;" onchange="updateTotalPrice()">
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-success btn-lg w-100">
+                                    🛒 Добавить в корзину - <span id="total-price">{{ book.price }}</span> руб.
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="row text-muted">
+                <div class="col-md-6">
+                    <small><strong>Цена за шт:</strong> {{ book.price }} руб.</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'book_list' %}" class="btn btn-outline-secondary">
+                        ← Вернуться к каталогу
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Получаем цену одной книги
+const singlePrice = parseFloat({{ book.price }});
+
+function updateTotalPrice() {
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const totalPrice = singlePrice * quantity;
+    
+    // Обновляем отображение цены
+    document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+    
+    // Обновляем текст под ценой
+    const totalPriceText = document.getElementById('total-price-text');
+    if (quantity > 1) {
+        totalPriceText.textContent = `(${quantity} × ${singlePrice.toFixed(2)} руб.)`;
+    } else {
+        totalPriceText.textContent = '';
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    updateTotalPrice();
+});
+</script>
+{% endblock %}

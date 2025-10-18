@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои заказы - Книжный Магазин{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">📦 Мои заказы</h1>
+    
+    {% if orders %}
+    <div class="card">
+        <div class="card-body">
+            {% for order in orders %}
+            <div class="row align-items-center mb-3 pb-3 border-bottom">
+                <div class="col-md-2">
+                    <strong>#{{ order.id }}</strong>
+                </div>
+                <div class="col-md-2">
+                    <small class="text-muted">{{ order.created_at|date:"d.m.Y" }}</small>
+                </div>
+                <div class="col-md-2">
+                    <span class="badge bg-{{ order.get_status_display_class }}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+                <div class="col-md-3">
+                    <small>{{ order.items.count }} товар(ов)</small>
+                </div>
+                <div class="col-md-2">
+                    <strong>{{ order.total_price }} руб.</strong>
+                </div>
+                <div class="col-md-1">
+                    <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary btn-sm">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <h3>📦 У вас пока нет заказов</h3>
+        <p class="text-muted">Сделайте свой первый заказ в нашем магазине!</p>
+        <a href="{% url 'book_list' %}" class="btn btn-primary btn-lg">
+            📚 Перейти к каталогу
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

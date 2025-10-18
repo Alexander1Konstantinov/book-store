@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Оформление заказа - Книжный Магазин{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">📦 Оформление заказа</h1>
+    
+    {% if messages %}
+    <div class="alert-container mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <!-- Форма заказа -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📋 Данные для доставки</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.customer_name.id_for_label }}" class="form-label">
+                                    {{ form.customer_name.label }} *
+                                </label>
+                                {{ form.customer_name }}
+                                {% if form.customer_name.errors %}
+                                <div class="text-danger small">{{ form.customer_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.customer_email.id_for_label }}" class="form-label">
+                                    {{ form.customer_email.label }} *
+                                </label>
+                                {{ form.customer_email }}
+                                {% if form.customer_email.errors %}
+                                <div class="text-danger small">{{ form.customer_email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.customer_phone.id_for_label }}" class="form-label">
+                                {{ form.customer_phone.label }} *
+                            </label>
+                            {{ form.customer_phone }}
+                            {% if form.customer_phone.errors %}
+                            <div class="text-danger small">{{ form.customer_phone.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.shipping_address.id_for_label }}" class="form-label">
+                                {{ form.shipping_address.label }} *
+                            </label>
+                            {{ form.shipping_address }}
+                            {% if form.shipping_address.errors %}
+                            <div class="text-danger small">{{ form.shipping_address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                {{ form.notes.label }}
+                            </label>
+                            {{ form.notes }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        <!-- Информация о заказе -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🛒 Ваш заказ</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Список товаров -->
+                    <div class="mb-3">
+                        <h6>Товары:</h6>
+                        {% for item in cart_items %}
+                        <div class="d-flex justify-content-between align-items-center mb-2 small">
+                            <div>
+                                <strong>{{ item.book.title }}</strong>
+                                <br>
+                                <small class="text-muted">{{ item.quantity }} × {{ item.book.price }} руб.</small>
+                            </div>
+                            <strong>{{ item.total_price }} руб.</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Итоговая сумма -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Общая сумма:</strong>
+                        <strong class="text-primary h5">{{ total_price }} руб.</strong>
+                    </div>
+                    
+                    <!-- Условия доставки -->
+                    <div class="alert alert-info small">
+                        <h6>🚚 Условия доставки:</h6>
+                        <ul class="mb-0 ps-3">
+                            <li>Бесплатная доставка от 1000 руб.</li>
+                            <li>Срок доставки: 2-5 дней</li>
+                            <li>Оплата при получении</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Кнопки действий -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            ✅ Подтвердить заказ
+                        </button>
+                        <a href="{% url 'cart_detail' %}" class="btn btn-outline-secondary">
+                            ← Вернуться в корзину
+                        </a>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
