@@ -1,0 +1,20 @@
+services:
+  backend:
+    container_name: git_diff
+    build:
+      context: ./mysite
+      dockerfile: Dockerfile
+    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./mysite/:/app
+    ports:
+      - 8000:8000
+    restart:
+      on-failure
+    networks:
+      - gps
+
+networks:
+  gps:
+    driver: bridge
+
